@@ -1,0 +1,294 @@
+{
+  "name": "system3-2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -368,
+        -16
+      ],
+      "id": "f172faeb-1dd5-4d3e-9fcb-393b85f68b65",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0",
+          "mode": "list",
+          "cachedResultName": "AIGeneration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "FinalStatus",
+              "lookupValue": "APPROVED"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -160,
+        -16
+      ],
+      "id": "646983af-2090-47ae-9f4f-185742572625",
+      "name": "GGS:GetRow",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QWaAb0aq2VIWfoNV",
+          "name": "Google:system02"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. ดึงค่าจาก Input (สมมติว่า Input เป็น JSON ที่มาจาก Read GGS)\n//    - ถ้า Node ก่อนหน้าชื่อ GGS:GetContent ให้ใช้ GGS.GetContent\n//    - ถ้า Node ก่อนหน้าชื่อ Code:Extract ให้ใช้ $json หรือ ggsData\n//    - เพื่อความเสถียร เราจะดึงค่าที่จำเป็นทั้งหมดมาใช้\nconst caption = $json.Caption || \"โปรโมชั่น/คอนเทนต์ใหม่จาก AI\";\nconst imageIdea = $json['Image Idea'] || \"ภาพ AI สร้าง...\";\nconst keyword = $json.Keyword || \"สินค้าใหม่\";\n\n// 2. สร้าง Flex Message Object ที่สมบูรณ์ (Bubble Contents)\nconst flexContents = {\n  \"type\": \"bubble\",\n  \"size\": \"giga\",\n  \"header\": {\n    \"type\": \"box\",\n    \"layout\": \"vertical\",\n    \"contents\": [\n      {\n        \"type\": \"text\",\n        \"text\": \"🔥 โปรโมชั่น/คอนเทนต์ใหม่จาก \" + keyword + \" 🔥\",\n        \"weight\": \"bold\",\n        \"size\": \"md\",\n        \"color\": \"#1DB446\",\n        \"wrap\": true\n      }\n    ]\n  },\n  \"body\": {\n    \"type\": \"box\",\n    \"layout\": \"vertical\",\n    \"contents\": [\n      {\n        \"type\": \"text\",\n        \"text\": caption, // ดึงค่า Caption ที่ AI สร้าง\n        \"weight\": \"bold\",\n        \"size\": \"xl\",\n        \"margin\": \"md\",\n        \"wrap\": true\n      },\n      {\n        \"type\": \"box\",\n        \"layout\": \"vertical\",\n        \"margin\": \"lg\",\n        \"spacing\": \"sm\",\n        \"contents\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"✨ ไอเดียภาพประกอบ: \" + imageIdea,\n            \"size\": \"md\",\n            \"color\": \"#666666\",\n            \"wrap\": true\n          }\n        ]\n      }\n    ]\n  },\n  \"footer\": {\n    \"type\": \"box\",\n    \"layout\": \"vertical\",\n    \"contents\": [\n      {\n        \"type\": \"button\",\n        \"style\": \"primary\",\n        \"action\": {\n          \"type\": \"uri\",\n          \"label\": \"🛒 ดูรายละเอียดเพิ่มเติม\",\n          \"uri\": \"https://your.website.com/\" \n        }\n      }\n    ]\n  }\n};\n\n// 3. ห่อหุ้ม Flex Message ด้วยโครงสร้าง Line Message Array ที่สมบูรณ์\nconst lineMessageArray = [\n    {\n        \"type\": \"flex\",\n        \"altText\": \"🎉 \" + keyword + \" คอนเทนต์ใหม่มาแล้ว!\",\n        \"contents\": flexContents\n    }\n];\n\n// 4. Return Output โดยใช้ Key ที่ชัดเจน (เช่น 'messagesToSend')\nreturn {\n    // ดึง AltText ออกมาเป็นคีย์แยก\n    \"flexAltText\": lineMessageArray[0].altText,\n    // ดึง Contents (Bubble JSON) ออกมาเป็นคีย์แยก\n    \"flexContents\": lineMessageArray[0].contents\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        -16
+      ],
+      "id": "d577e04d-6284-4487-b87c-82f74ed0c5b9",
+      "name": "Code:Flex"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "to": "U53f877618460b12c0df330a3ea233fe6",
+        "messages": {
+          "values": [
+            {
+              "altText": "ข้อความ",
+              "flexJson": "={{ JSON.stringify($json.flexContents) }}",
+              "type": "flex"
+            }
+          ]
+        }
+      },
+      "type": "@aotoki/n8n-nodes-line-messaging.lineMessaging",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "ec222426-317b-4a50-89e4-d44b99343196",
+      "name": "Line Messaging",
+      "credentials": {
+        "lineMessagingApi": {
+          "id": "jdhBLJPXvIOX9rT5",
+          "name": "IDEA:Message"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0",
+          "mode": "list",
+          "cachedResultName": "AIGeneration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $('GGS:GetRow').item.json.RowID }}",
+            "DateToPost ": "={{ $now }}",
+            "FinalStatus": "SENT"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Keyword",
+              "displayName": "Keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AIStatus ",
+              "displayName": "AIStatus ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ImageIdea",
+              "displayName": "ImageIdea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "FinalStatus",
+              "displayName": "FinalStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DateToPost ",
+              "displayName": "DateToPost ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        432,
+        -16
+      ],
+      "id": "607957d3-6197-40a6-a237-2a688a070490",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QWaAb0aq2VIWfoNV",
+          "name": "Google:system02"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GGS:GetRow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GGS:GetRow": {
+      "main": [
+        [
+          {
+            "node": "Code:Flex",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code:Flex": {
+      "main": [
+        [
+          {
+            "node": "Line Messaging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Line Messaging": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "149af0c3-d45b-4129-9665-c513a09459f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "476f031097a062e32e83b051d1e4f5ed8266a05c11eea42621b6eb2e390c333c"
+  },
+  "id": "5IITE07kWh1TMAED",
+  "tags": []
+}

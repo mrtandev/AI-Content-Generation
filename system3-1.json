@@ -1,0 +1,301 @@
+{
+  "name": "system3-1",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -304,
+        -32
+      ],
+      "id": "d01cb2b2-22ed-4539-9212-d6d80f3be1c6",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0",
+          "mode": "list",
+          "cachedResultName": "AIGeneration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "AIStatus ",
+              "lookupValue": "PENDING"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        -32
+      ],
+      "id": "7b11d837-9b39-48d4-88c7-bcb7862dfaa1",
+      "name": "GGS:GetContent",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QWaAb0aq2VIWfoNV",
+          "name": "Google:system02"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=\n{{ $json.RowID }}\nสร้างแคปชั่นการตลาดและไอเดียภาพสำหรับ Keyword: {{ $json.Keyword }}"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "=คุณคือผู้เชี่ยวชาญด้านการตลาดดิจิทัลที่ถนัดสร้างคอนเทนต์สำหรับ Line OA\nวัตถุประสงค์: สร้างแคปชั่นที่ดึงดูดใจและไอเดียภาพ/วิดีโอประกอบ สำหรับ Keyword ที่ให้มา\nผลลัพธ์ต้องอยู่ในภาษาไทยเท่านั้น และต้องมี Tone & Voice ที่เป็นกันเองและน่าสนใจ\n\n**ผลลัพธ์จะต้องอยู่ในรูปแบบ JSON Object เท่านั้น ห้ามมีข้อความอื่นใดนอกเหนือจาก JSON หรืออักขระพิเศษใดๆ (เช่น ``` หรือ \\n)**\n\n**โครงสร้าง JSON ที่ต้องการ:**\n{\n  \"Caption\": \"[สร้างแคปชั่นการตลาดที่ดึงดูดความสนใจจาก Keyword]\",\n  \"ImageIdea\": \"[อธิบายไอเดียภาพหรือวิดีโอที่ใช้ประกอบแคปชั่นนี้อย่างละเอียด]\",\n  \"RowID\": {{ $json.RowID }}\n}\n\nKeyword ที่ต้องการ: {{ $json.Keyword }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        48,
+        -32
+      ],
+      "id": "a8272337-f3a5-4240-ac47-9f5508cdf53a",
+      "name": "Message a model",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RxgPIGHH8f5ipTxM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0",
+          "mode": "list",
+          "cachedResultName": "AIGeneration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Contents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ks2yR7LfZOX9hN3eOa44ubbztRaZAE7hmIrAfpvMWR0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "RowID": "={{ $json.RowID }}",
+            "Caption": "={{ $json.Caption }}",
+            "ImageIdea": "={{ $json.ImageIdea }}",
+            "AIStatus ": "GENERATED"
+          },
+          "matchingColumns": [
+            "RowID"
+          ],
+          "schema": [
+            {
+              "id": "RowID",
+              "displayName": "RowID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Keyword",
+              "displayName": "Keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AIStatus ",
+              "displayName": "AIStatus ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ImageIdea",
+              "displayName": "ImageIdea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DateToPost ",
+              "displayName": "DateToPost ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "FinalStatus",
+              "displayName": "FinalStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        -64
+      ],
+      "id": "d00c875b-cdf0-4d15-8b6e-64ea381c3d6b",
+      "name": "GGS:UpdContent",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QWaAb0aq2VIWfoNV",
+          "name": "Google:system02"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ดึงค่าข้อความที่บรรจุ JSON String จาก Output ของ Node \"Message a model\"\nconst jsonString = $json.content.parts[0].text;\n\n// ทำความสะอาด JSON String: ลบ \"json\\n(\", \"\\n\", \")\\n\" และ backslash escape\nlet cleanedString = jsonString\n    .trim()\n    .replace(/^json\\s*\\n*\\s*\\(/i, '') // ลบ 'json(' ที่อาจอยู่ต้นข้อความ\n    .replace(/\\s*\\n*\\s*\\)\\s*\\n*$/i, '') // ลบ ')\\n' ที่อาจอยู่ท้ายข้อความ\n    .replace(/\\\\\"/g, '\"') // เปลี่ยน \\\" เป็น \"\n    .replace(/\\n/g, ''); // ลบ \\n\n\n// แปลง JSON String เป็น JavaScript Object\ntry {\n    const parsedJson = JSON.parse(cleanedString);\n    return parsedJson;\n} catch (e) {\n    // หาก Parse ล้มเหลว ให้ใช้ Fallback Logic ค้นหา { }\n    try {\n        const startIndex = cleanedString.indexOf('{');\n        const endIndex = cleanedString.lastIndexOf('}');\n        \n        if (startIndex !== -1 && endIndex !== -1) {\n            const jsonObjectString = cleanedString.substring(startIndex, endIndex + 1);\n            return JSON.parse(jsonObjectString);\n        }\n    } catch (e2) {\n        console.error(\"Error parsing JSON with fallback:\", e2);\n    }\n    \n    // หากยังล้มเหลว คืนค่า Error\n    console.error(\"Error parsing JSON:\", e);\n    // สำคัญ: ต้องแน่ใจว่าได้ส่งค่าที่ต้องการ (เช่น FeedbackID) ออกมาในกรณีฉุกเฉิน\n    return { error: \"Failed to parse JSON\", originalText: jsonString };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -64
+      ],
+      "id": "28718eda-a9cc-4a78-9099-918b1b286adf",
+      "name": "Code:Extract",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GGS:GetContent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GGS:GetContent": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code:Extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code:Extract": {
+      "main": [
+        [
+          {
+            "node": "GGS:UpdContent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "5977595a-07b7-49eb-960b-6c32fce482ab",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "476f031097a062e32e83b051d1e4f5ed8266a05c11eea42621b6eb2e390c333c"
+  },
+  "id": "JrwqPta9OseeNa2r",
+  "tags": []
+}
